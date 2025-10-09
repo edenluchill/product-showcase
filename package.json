@@ -1,0 +1,48 @@
+{
+  "name": "product-show",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "functions:dev": "wrangler pages dev dist --compatibility-date=2024-01-01 --live-reload",
+    "deploy": "npm run build && wrangler pages deploy ./dist",
+    "scrape": "tsx scripts/scraper/temu-scraper.ts",
+    "scrape:test": "tsx scripts/scraper/temu-scraper.ts --test",
+    "convert-data": "tsx scripts/convert-scraped-data.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^1.23.0",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-progress": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-toast": "^1.1.5",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "@google/generative-ai": "^0.21.0",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.56",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.18",
+    "axios": "^1.6.7",
+    "postcss": "^8.4.35",
+    "puppeteer": "^21.11.0",
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.4",
+    "wrangler": "^4.42.1"
+  }
+}
