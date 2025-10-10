@@ -26,7 +26,7 @@ import {
   ImageStyle,
   GeneratedImage,
 } from "@/lib/types";
-import { searchBestsellersByKeywords } from "@/lib/bestsellers";
+import { searchBestsellersByKeywords } from "@/lib/bestsellers-api";
 
 type Step =
   | "upload-product" // 步骤1：上传产品图
@@ -108,8 +108,8 @@ function App() {
 
       setProductAnalysis(analysis);
 
-      // 根据分析结果搜索爆款
-      const foundBestsellers = searchBestsellersByKeywords(
+      // 根据分析结果搜索爆款（使用实时爬虫或本地数据库）
+      const foundBestsellers = await searchBestsellersByKeywords(
         analysis.searchKeywords
       );
 

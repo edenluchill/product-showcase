@@ -1,0 +1,66 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🐛 Debug test:scraper",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "test:scraper"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/api-server",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "DEBUG": "true"
+      }
+    },
+    {
+      "name": "🔍 Debug test:scraper (Visible Browser)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "test:visible"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/api-server",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "DEBUG": "true",
+        "HEADLESS": "false"
+      }
+    },
+    {
+      "name": "🧪 Debug test:diagnose",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "test:diagnose"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/api-server",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "🚀 Debug API Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/api-server",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "DEBUG": "true",
+        "HEADLESS": "false"
+      }
+    },
+    {
+      "name": "🔧 Debug Current TS File",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "${file}"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/api-server",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

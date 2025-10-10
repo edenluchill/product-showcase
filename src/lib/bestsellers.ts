@@ -5,7 +5,7 @@ import { Bestseller } from "./types";
  *
  * 数据来源：
  * - 初期：人工精选 + 真实产品截图
- * - 中期：爬虫自动获取（参见 scripts/scraper/）
+ * - 中期：实时爬虫（参见 api-server/）
  * - 长期：官方API或人工维护
  *
  * 使用方式：
