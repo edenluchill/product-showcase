@@ -9,8 +9,9 @@
  * 端口：3001
  */
 
-import express from "express";
 import cors from "cors";
+import express from "express";
+import { MOCK_BESTSELLERS } from "./mock-products.js";
 import { TemuScraper } from "./scraper.js";
 
 // 类型定义
@@ -154,27 +155,33 @@ app.post("/api/search-bestsellers", async (req, res) => {
   }
 });
 
-// 搜索单个关键词（简化版）
+// 搜索单个关键词（简化版 - 使用 Mock Data）
 app.get("/api/search/:keyword", async (req, res) => {
   try {
     const { keyword } = req.params;
+    const useMock = req.query.mock === "true"; // 支持通过 ?mock=true 启用 mock
 
     console.log(`🔍 收到搜索请求：${keyword}`);
 
-    await initScraper();
+    let products;
 
-    if (!scraper) {
-      throw new Error("爬虫初始化失败");
-    }
-
-    const products = await scraper.searchBestsellers(keyword);
+    products = MOCK_BESTSELLERS;
+    // else {
+    //   // 使用真实爬虫
+    //   await initScraper();
+    //   if (!scraper) {
+    //     throw new Error("爬虫初始化失败");
+    //   }
+    //   console.log(`📡 开始爬取：${keyword}`);
+    //   products = await scraper.searchBestsellers(keyword);
+    // }
 
     const bestsellers: Bestseller[] = products.map((product, index) => ({
       id: `temu-${Date.now()}-${index}`,
       platform: "temu",
       productName: product.title,
       price: product.price,
-      currency: "USD",
+      currency: product.currency || "CAD",
       sales: product.sales,
       rating: product.rating,
       reviews: product.reviews,
@@ -195,6 +202,7 @@ app.get("/api/search/:keyword", async (req, res) => {
       count: bestsellers.length,
       bestsellers,
       keyword,
+      usedMock: useMock,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -202,6 +210,47 @@ app.get("/api/search/:keyword", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "搜索失败",
+      message: error instanceof Error ? error.message : "未知错误",
+    });
+  }
+});
+
+// 新增：专门的 Mock Data 端点
+app.get("/api/mock-bestsellers", (req, res) => {
+  try {
+    const bestsellers: Bestseller[] = MOCK_BESTSELLERS.map(
+      (product, index) => ({
+        id: `mock-temu-${Date.now()}-${index}`,
+        platform: "temu",
+        productName: product.title,
+        price: product.price,
+        currency: product.currency || "CAD",
+        sales: product.sales,
+        rating: product.rating,
+        reviews: product.reviews,
+        thumbnailUrl: product.images[0] || "",
+        imageCount: product.images.length,
+        productUrl: product.url,
+        images: product.images.map((url, imgIndex) => ({
+          url,
+          index: imgIndex + 1,
+          type: imgIndex === 0 ? "main" : "detail",
+        })),
+      })
+    );
+
+    res.json({
+      success: true,
+      count: bestsellers.length,
+      bestsellers,
+      source: "mock",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("❌ Mock 数据获取失败:", error);
+    res.status(500).json({
+      success: false,
+      error: "Mock 数据获取失败",
       message: error instanceof Error ? error.message : "未知错误",
     });
   }

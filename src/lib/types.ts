@@ -97,6 +97,7 @@ export interface BestsellerImage {
   url: string;
   index: number;
   type?: "main" | "detail" | "lifestyle";
+  viewAngle?: "front" | "back" | "side" | "other"; // 新增：明确标记图片视角
 }
 
 // 图片风格分析结果
@@ -109,6 +110,8 @@ export interface ImageStyle {
   focusArea?: string; // 特写的焦点区域
   props?: string[]; // 道具
   specialNotes?: string; // 特殊说明
+  group?: number;
+  promptVariant?: string;
 }
 
 // 批量生成结果
@@ -121,8 +124,11 @@ export interface GeneratedImageSet {
 
 export interface GeneratedImage {
   index: number;
+  group: number; // 1, 2, 3 表示三组不同的 prompt 策略
+  promptVariant: string; // "精准还原" | "风格优化" | "创意混合"
   url: string;
-  status: "success" | "failed" | "pending";
-  style: ImageStyle;
+  status: "success" | "failed" | "pending" | "generating";
+  style?: ImageStyle; // 可选：基于风格分析的生成方式会有这个
+  referenceUrl?: string; // 可选：基于参考图的生成方式会有这个
   error?: string;
 }

@@ -34,20 +34,27 @@ export function BatchProgress({
           </div>
 
           {/* 统计 */}
-          <div className="grid grid-cols-3 gap-4 text-center text-sm">
-            <div className="flex items-center justify-center gap-2 text-green-600">
+          <div className="grid grid-cols-4 gap-3 text-center text-xs">
+            <div className="flex items-center justify-center gap-1.5 text-green-600">
               <Check className="w-4 h-4" />
               <span className="font-medium">{successCount} 成功</span>
             </div>
-            <div className="flex items-center justify-center gap-2 text-red-600">
-              <XCircle className="w-4 h-4" />
-              <span className="font-medium">{failedCount} 失败</span>
+            <div className="flex items-center justify-center gap-1.5 text-blue-600">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="font-medium">
+                {images.filter((img) => img.status === "generating").length}{" "}
+                进行中
+              </span>
             </div>
-            <div className="flex items-center justify-center gap-2 text-slate-600">
+            <div className="flex items-center justify-center gap-1.5 text-slate-500">
               <Clock className="w-4 h-4" />
               <span className="font-medium">
-                {totalCount - currentIndex} 等待中
+                {images.filter((img) => img.status === "pending").length} 等待中
               </span>
+            </div>
+            <div className="flex items-center justify-center gap-1.5 text-red-600">
+              <XCircle className="w-4 h-4" />
+              <span className="font-medium">{failedCount} 失败</span>
             </div>
           </div>
 
@@ -64,12 +71,31 @@ export function BatchProgress({
                 {img.status === "failed" && (
                   <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
                 )}
-                {img.status === "pending" && (
+                {img.status === "generating" && (
                   <Loader2 className="w-4 h-4 text-blue-500 flex-shrink-0 animate-spin" />
+                )}
+                {img.status === "pending" && (
+                  <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
                 )}
 
                 <span className="flex-1">
-                  图 {img.index}: {img.style.angle} {img.style.shot}
+                  图 {img.index}:{" "}
+                  {img.status === "generating" && (
+                    <span className="text-blue-600 font-medium">生成中...</span>
+                  )}
+                  {img.status === "pending" && (
+                    <span className="text-slate-400">等待中</span>
+                  )}
+                  {img.status === "success" && (
+                    <span className="text-green-600">
+                      {img.style
+                        ? `${img.style.angle} ${img.style.shot}`
+                        : "完成"}
+                    </span>
+                  )}
+                  {img.status === "failed" && (
+                    <span className="text-red-600">失败</span>
+                  )}
                   {img.error && (
                     <span className="text-red-500 text-xs ml-2">
                       ({img.error})

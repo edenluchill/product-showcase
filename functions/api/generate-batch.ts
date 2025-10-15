@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import { MemoryStorage } from "../../src/lib/storage";
 import {
-  PagesFunction,
-  ImageStyle,
   GeneratedImageSet,
+  ImageStyle,
+  PagesFunction,
 } from "../../src/lib/types";
 
 interface Env {
@@ -196,6 +196,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             url: imageUrl,
             status: "success",
             style: style,
+            group: style.group || 0, // Fallback to 0 if not provided
+            promptVariant: style.promptVariant || "unknown", // Fallback
           });
 
           successCount++;
@@ -211,6 +213,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           url: "",
           status: "failed",
           style: style,
+          group: style.group || 0, // Fallback to 0 if not provided
+          promptVariant: style.promptVariant || "unknown", // Fallback
           error: error instanceof Error ? error.message : "Generation failed",
         });
       }

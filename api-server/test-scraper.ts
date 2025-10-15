@@ -29,7 +29,7 @@ async function testScraper() {
     await scraper.init();
 
     // 测试关键词
-    const testKeyword = "phone case";
+    const testKeyword = "jeans";
     console.log(`\n🔍 测试关键词: ${testKeyword}\n`);
 
     const products = await scraper.searchBestsellers(testKeyword);

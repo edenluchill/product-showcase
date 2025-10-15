@@ -5,8 +5,8 @@
       "name": "🐛 Debug test:scraper",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test:scraper"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--import", "tsx", "test-scraper.ts"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/api-server",
       "skipFiles": ["<node_internals>/**"],
@@ -18,8 +18,8 @@
       "name": "🔍 Debug test:scraper (Visible Browser)",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test:visible"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--import", "tsx", "test-scraper.ts"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/api-server",
       "skipFiles": ["<node_internals>/**"],
@@ -32,8 +32,8 @@
       "name": "🧪 Debug test:diagnose",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test:diagnose"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--import", "tsx", "test-diagnose.ts"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/api-server",
       "skipFiles": ["<node_internals>/**"]
@@ -42,8 +42,8 @@
       "name": "🚀 Debug API Server",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["start"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--import", "tsx", "src/index.ts"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/api-server",
       "skipFiles": ["<node_internals>/**"],
@@ -53,14 +53,19 @@
       }
     },
     {
-      "name": "🔧 Debug Current TS File (api-server)",
+      "name": "🔧 Debug Current TS File",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["tsx", "${relativeFile}"],
+      "program": "${file}",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--import", "tsx"],
       "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}/api-server",
-      "skipFiles": ["<node_internals>/**"]
+      "cwd": "${fileDirname}",
+      "skipFiles": ["<node_internals>/**"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     }
   ]
 }
