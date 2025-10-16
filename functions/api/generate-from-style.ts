@@ -1,4 +1,3 @@
-import { MemoryStorage } from "../../src/lib/storage";
 import { ImageStyle, PagesFunction } from "../../src/lib/types";
 import { GeminiClient } from "./utils/gemini-client";
 import {
@@ -11,6 +10,7 @@ import { selectProductImageByViewAngle } from "./utils/view-angle-selector";
 
 interface Env {
   GEMINI_API_KEY: string;
+  IMAGE_BUCKET: R2Bucket;
 }
 
 /**
@@ -63,6 +63,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!env.GEMINI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "GEMINI_API_KEY not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!env.IMAGE_BUCKET) {
+      return new Response(
+        JSON.stringify({ error: "R2 IMAGE_BUCKET not configured" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -184,16 +191,23 @@ Return ONLY the JSON object, no additional text.`;
     // 步骤4: 保存并返回结果
     // =============================================
     const imageBuffer = base64ToArrayBuffer(imageData.data);
-    const storage = MemoryStorage.getInstance();
-    const imageId = await storage.saveImage(imageBuffer, imageData.mimeType);
-    const imageUrl = storage.getImageUrl(imageId);
+    const imageId = `${crypto.randomUUID()}.png`;
 
-    console.log("Image generated successfully:", imageUrl);
+    await env.IMAGE_BUCKET.put(imageId, imageBuffer, {
+      httpMetadata: {
+        contentType: imageData.mimeType,
+        cacheControl: "public, max-age=604800", // 缓存一周
+      },
+    });
+
+    const publicUrl = `${new URL(request.url).origin}/api/images/${imageId}`;
+
+    console.log("Image generated and uploaded to R2 successfully:", publicUrl);
 
     return new Response(
       JSON.stringify({
         success: true,
-        imageUrl: imageUrl,
+        imageUrl: publicUrl,
         mimeType: imageData.mimeType,
         styleAnalysis: styleAnalysis, // 同时返回分析结果，方便调试
       }),

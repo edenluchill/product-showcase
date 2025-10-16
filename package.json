@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "functions:dev": "wrangler pages dev dist --compatibility-date=2024-01-01 --live-reload",
+    "functions:dev": "wrangler pages dev dist --r2=IMAGE_BUCKET --persist-to=.wrangler/r2 --compatibility-date=2024-01-01 --live-reload",
     "deploy": "npm run build && wrangler pages deploy ./dist",
     "api-server": "cd api-server && npm start",
     "api-server:install": "cd api-server && npm install"
@@ -22,6 +22,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/jszip": "^3.4.0",
     "axios": "^1.12.2",
+    "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "file-saver": "^2.0.5",
