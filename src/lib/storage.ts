@@ -42,10 +42,9 @@ export class MemoryStorage implements StorageAdapter {
 }
 
 // 工厂函数 - 返回单例实例
-export function createStorage(
-  env: any,
-  type: "r2" | "memory" = "memory"
-): StorageAdapter {
+export function createStorage(): StorageAdapter {
+// env: any,
+// type: "r2" | "memory" = "memory"
   // if (type === "r2" && env.IMAGES_BUCKET) {
   //   return new R2Storage(env.IMAGES_BUCKET, env.PUBLIC_URL);
   // }
