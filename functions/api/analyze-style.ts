@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import { PagesFunction, ImageStyle } from "../../src/lib/types";
 import axios from "axios";
+import { ImageStyle, PagesFunction } from "../../src/lib/types";
 
 interface Env {
   GEMINI_API_KEY: string;
@@ -37,7 +37,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as { imageUrl: string };
     const { imageUrl } = body;
 
     if (!imageUrl) {

@@ -6,8 +6,20 @@
  * 2. 静态数据模式（使用本地数据库）
  */
 
-import { Bestseller } from "./types";
 import { searchBestsellersByKeywords as searchLocal } from "./bestsellers";
+import { Bestseller } from "./types";
+
+// 定义接口
+interface ScraperResponse {
+  success: boolean;
+  message?: string;
+  bestsellers: Bestseller[];
+}
+
+interface HealthCheckResponse {
+  status: string;
+  scraperInitialized: boolean;
+}
 
 // 配置
 const SCRAPER_API_URL =
@@ -35,7 +47,7 @@ async function searchFromLiveScraper(
       throw new Error(`API请求失败: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as ScraperResponse;
 
     if (!data.success) {
       throw new Error(data.message || "爬虫搜索失败");
@@ -82,7 +94,7 @@ export async function checkScraperStatus(): Promise<boolean> {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const data = (await response.json()) as HealthCheckResponse;
       return data.status === "ok" && data.scraperInitialized;
     }
 

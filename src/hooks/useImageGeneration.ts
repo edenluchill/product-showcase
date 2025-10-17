@@ -88,11 +88,11 @@ export function useImageGeneration() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
+          const errorData = (await response.json()) as { error?: string };
           throw new Error(errorData.error || `生成失败`);
         }
 
-        const data = await response.json();
+        const data = (await response.json()) as { imageUrl: string };
 
         allResults[resultIndex] = {
           index: imageIndex + 1,
@@ -227,7 +227,7 @@ export function useImageGeneration() {
           throw new Error(`生成失败`);
         }
 
-        const data = await response.json();
+        const data = (await response.json()) as { imageUrl: string };
 
         results[i] = {
           index: i + 1,
@@ -283,7 +283,7 @@ export function useImageGeneration() {
           throw new Error(`分析图片 ${i + 1} 失败`);
         }
 
-        const data = await response.json();
+        const data = (await response.json()) as { style: ImageStyle };
         styles.push(data.style);
       } catch (error) {
         console.error(`分析图片 ${i + 1} 失败:`, error);
