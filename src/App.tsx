@@ -5,11 +5,9 @@ import { toast } from "@/hooks/use-toast";
 import { BatchProgress } from "@/components/BatchProgress";
 import { ImageGallery } from "@/components/ImageGallery";
 import { StepIndicator } from "@/components/StepIndicator";
-import { UploadProductStep } from "@/components/steps/UploadProductStep";
+import { UploadAllStep } from "@/components/steps/UploadAllStep";
 import { AnalyzingProductStep } from "@/components/steps/AnalyzingProductStep";
 import { SelectBestsellerStep } from "@/components/steps/SelectBestsellerStep";
-import { UploadModelStep } from "@/components/steps/UploadModelStep";
-import { AnalyzingStylesStep } from "@/components/steps/AnalyzingStylesStep";
 import { CompleteStep } from "@/components/steps/CompleteStep";
 import { Bestseller } from "@/lib/types";
 import { MOCK_BESTSELLERS_DATA } from "./bestsellers-mock";
@@ -19,16 +17,14 @@ import { useModelUpload } from "@/hooks/useModelUpload";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 
 type Step =
-  | "upload-product"
+  | "upload-all"
   | "analyzing-product"
   | "select-bestseller"
-  | "upload-model"
-  | "analyzing-styles"
   | "generating"
   | "complete";
 
 function App() {
-  const [step, setStep] = useState<Step>("upload-product");
+  const [step, setStep] = useState<Step>("upload-all");
 
   // Custom hooks
   const productUpload = useProductUpload();
@@ -46,13 +42,13 @@ function App() {
 
   // Analyze product
   const handleAnalyzeProduct = async () => {
-    if (!productUpload.productImage) return;
+    if (!productUpload.productImage || !modelUpload.modelImage) return;
 
     setStep("analyzing-product");
 
     const analysis = await productUpload.analyzeProduct();
     if (!analysis) {
-      setStep("upload-product");
+      setStep("upload-all");
       return;
     }
 
@@ -65,7 +61,7 @@ function App() {
         description: `分析结果：${analysis.category}。暂无此类产品的爆款数据。`,
         variant: "destructive",
       });
-      setStep("upload-product");
+      setStep("upload-all");
       return;
     }
 
@@ -74,21 +70,23 @@ function App() {
 
     toast({
       title: "分析完成！",
-      description: `识别为：${analysis.category}，找到 ${foundBestsellers.length} 个爆款`,
+      description: `识别为：${analysis.category}，找到 ${foundBestsellers.length} 个爆款模板`,
     });
   };
 
-  // Confirm bestseller selection
-  const handleConfirmBestseller = () => {
+  // Confirm bestseller selection and start generation
+  const handleConfirmBestseller = async () => {
     if (!bestsellerSelection.selectedBestseller) {
       toast({
-        title: "请选择爆款",
-        description: "请先选择一个爆款产品",
+        title: "请选择爆款模板",
+        description: "请先选择一个爆款模板",
         variant: "destructive",
       });
       return;
     }
-    setStep("upload-model");
+
+    // 直接开始生成
+    await handleStartGenerationWithReference();
   };
 
   // Start generation with reference (recommended method)
@@ -135,55 +133,7 @@ function App() {
         description: error instanceof Error ? error.message : "请稍后重试",
         variant: "destructive",
       });
-      setStep("upload-model");
-    } finally {
-      imageGeneration.setIsGenerating(false);
-    }
-  };
-
-  // Start generation with style analysis (legacy method)
-  const handleStartGeneration = async () => {
-    if (
-      !modelUpload.modelImage ||
-      !productUpload.productImage ||
-      !bestsellerSelection.selectedBestseller
-    )
-      return;
-
-    setStep("analyzing-styles");
-    imageGeneration.setIsGenerating(true);
-
-    try {
-      toast({
-        title: "开始分析",
-        description: `正在分析爆款的 ${bestsellerSelection.selectedBestseller.imageCount} 张图片...`,
-      });
-
-      const styles = await imageGeneration.analyzeStyles(
-        bestsellerSelection.selectedBestseller
-      );
-
-      toast({
-        title: "分析完成！",
-        description: `已分析 ${styles.length} 张图片的风格`,
-      });
-
-      setStep("generating");
-      await imageGeneration.generateBatchImages(
-        styles,
-        modelUpload.modelImage,
-        productUpload.productImage
-      );
-
-      setStep("complete");
-    } catch (error) {
-      console.error("Error:", error);
-      toast({
-        title: "生成失败",
-        description: error instanceof Error ? error.message : "请稍后重试",
-        variant: "destructive",
-      });
-      setStep("upload-model");
+      setStep("select-bestseller");
     } finally {
       imageGeneration.setIsGenerating(false);
     }
@@ -191,7 +141,7 @@ function App() {
 
   // Restart flow
   const handleRestart = () => {
-    setStep("upload-product");
+    setStep("upload-all");
     productUpload.reset();
     bestsellerSelection.reset();
     modelUpload.reset();
@@ -216,65 +166,66 @@ function App() {
           {/* Step Indicator */}
           <div className="flex justify-center gap-2 mt-4 text-sm">
             <StepIndicator
-              label="1.上传产品"
-              active={step === "upload-product"}
+              label="1.上传照片"
+              active={step === "upload-all"}
               completed={[
                 "analyzing-product",
                 "select-bestseller",
-                "upload-model",
-                "analyzing-styles",
                 "generating",
                 "complete",
               ].includes(step)}
             />
             <ArrowRight className="w-4 h-4 text-slate-400 self-center" />
             <StepIndicator
-              label="2.选择爆款"
+              label="2.分析产品"
+              active={step === "analyzing-product"}
+              completed={[
+                "select-bestseller",
+                "generating",
+                "complete",
+              ].includes(step)}
+            />
+            <ArrowRight className="w-4 h-4 text-slate-400 self-center" />
+            <StepIndicator
+              label="3.选择模板"
               active={step === "select-bestseller"}
-              completed={[
-                "upload-model",
-                "analyzing-styles",
-                "generating",
-                "complete",
-              ].includes(step)}
-            />
-            <ArrowRight className="w-4 h-4 text-slate-400 self-center" />
-            <StepIndicator
-              label="3.上传模特"
-              active={step === "upload-model"}
-              completed={[
-                "analyzing-styles",
-                "generating",
-                "complete",
-              ].includes(step)}
+              completed={["generating", "complete"].includes(step)}
             />
             <ArrowRight className="w-4 h-4 text-slate-400 self-center" />
             <StepIndicator
               label="4.生成图片"
-              active={["analyzing-styles", "generating"].includes(step)}
+              active={step === "generating"}
               completed={step === "complete"}
             />
           </div>
         </div>
 
         {/* Step Components */}
-        {step === "upload-product" && (
-          <UploadProductStep
+        {step === "upload-all" && (
+          <UploadAllStep
             productPreview={productUpload.productPreview}
             productPreviewBack={productUpload.productPreviewBack}
+            modelPreview={modelUpload.modelPreview}
             onProductImageChange={productUpload.handleProductImageChange}
             onProductImageBackChange={
               productUpload.handleProductImageBackChange
             }
+            onModelImageChange={modelUpload.handleModelImageChange}
             onClearProductImage={() => {
-              productUpload.reset();
+              productUpload.setProductImage(null);
+              productUpload.setProductPreview("");
             }}
             onClearProductImageBack={() => {
               productUpload.setProductImageBack(null);
               productUpload.setProductPreviewBack("");
             }}
+            onClearModelImage={() => {
+              modelUpload.setModelImage(null);
+              modelUpload.setModelPreview("");
+            }}
             onContinue={handleAnalyzeProduct}
             hasProductImage={!!productUpload.productImage}
+            hasModelImage={!!modelUpload.modelImage}
           />
         )}
 
@@ -289,28 +240,6 @@ function App() {
             selectedBestseller={bestsellerSelection.selectedBestseller}
             onSelect={bestsellerSelection.setSelectedBestseller}
             onConfirm={handleConfirmBestseller}
-          />
-        )}
-
-        {step === "upload-model" && bestsellerSelection.selectedBestseller && (
-          <UploadModelStep
-            selectedBestseller={bestsellerSelection.selectedBestseller}
-            modelPreview={modelUpload.modelPreview}
-            isGenerating={imageGeneration.isGenerating}
-            hasModelImage={!!modelUpload.modelImage}
-            onModelImageChange={modelUpload.handleModelImageChange}
-            onClearModelImage={() => {
-              modelUpload.reset();
-            }}
-            onStartGenerationWithReference={handleStartGenerationWithReference}
-            onStartGeneration={handleStartGeneration}
-            onBack={() => setStep("select-bestseller")}
-          />
-        )}
-
-        {step === "analyzing-styles" && (
-          <AnalyzingStylesStep
-            selectedBestseller={bestsellerSelection.selectedBestseller}
           />
         )}
 
@@ -361,7 +290,7 @@ function App() {
               setGalleryOpen(true);
             }}
             onRestart={handleRestart}
-            onRegenerate={() => setStep("upload-model")}
+            onRegenerate={() => setStep("select-bestseller")}
           />
         )}
       </div>

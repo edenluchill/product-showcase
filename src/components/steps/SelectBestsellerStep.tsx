@@ -50,9 +50,9 @@ export function SelectBestsellerStep({
 
       <Card>
         <CardHeader>
-          <CardTitle>选择要模仿的爆款</CardTitle>
+          <CardTitle>选择爆款模板</CardTitle>
           <CardDescription>
-            选择后，我们将分析这个爆款的所有图片风格，并为您生成相同风格的产品图
+            选择一个爆款模板，我们将使用您上传的产品和模特照片，按照该模板的风格生成专业图片组
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -68,7 +68,7 @@ export function SelectBestsellerStep({
               onClick={onConfirm}
               disabled={!selectedBestseller}
             >
-              确认并继续 →
+              开始生成 →
             </Button>
           </div>
         </CardContent>
